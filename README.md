@@ -33,3 +33,26 @@ index.html   # estrutura da página
 style.css    # estilos e responsividade
 game.js      # lógica do jogo
 ```
+
+## Como gerar builds
+
+### Windows (exe portátil)
+
+```bash
+npm install
+npm run dist
+```
+
+Saída: `release\2248-Portable.exe`
+
+### Android (APK)
+
+Requer JDK 21 e Android SDK (platforms;android-35, build-tools;35.0.0).
+
+```bash
+npm install
+npx cap sync android
+cd android && gradlew.bat assembleDebug
+```
+
+Saída: `android\app\build\outputs\apk\debug\app-debug.apk`
