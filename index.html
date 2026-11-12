@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2248</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <h1>2248</h1>
+      <div class="scores">
+        <div class="score-box"><span>PONTOS</span><strong id="score">0</strong></div>
+        <div class="score-box"><span>RECORDE</span><strong id="best">0</strong></div>
+      </div>
+      <button id="restart" title="Reiniciar">⟳</button>
+    </div>
+
+    <div id="board">
+      <div id="cells"></div>
+      <svg id="path" viewBox="0 0 700 700" preserveAspectRatio="none">
+        <polyline id="poly" points="" fill="none" />
+      </svg>
+      <div id="overlay" class="hidden">
+        <h2>Sem movimentos!</h2>
+        <p id="finalScore"></p>
+        <button id="playAgain">Jogar de novo</button>
+      </div>
+    </div>
+
+    <p class="hint">Arraste conectando números iguais ou o dobro do anterior.</p>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

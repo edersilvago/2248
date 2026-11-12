@@ -1,0 +1,12 @@
+{
+  "name": "jogo-2248",
+  "version": "1.0.0",
+  "description": "Clone do puzzle 2248 (conectar números) em Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
