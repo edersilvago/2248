@@ -6,8 +6,10 @@ Clone do puzzle **2248 – Number Puzzle Game** feito em **Electron**: arraste e
 
 - Tabuleiro 7×7 sempre cheio de números.
 - Arraste conectando blocos adjacentes em 8 direções (horizontais, verticais e diagonais).
-- A próxima célula precisa ter o **mesmo valor da anterior** ou **exatamente o total acumulado da corrente** (`2` + `2` = `4`, então pode pegar um `4`; depois `8`, `16`... sem pular etapas).
-- Ao soltar, todos os blocos da corrente somem e o último recebe a soma total, ocupando a posição onde a corrente terminou.
+- Toda corrente **começa com dois blocos iguais**.
+- Depois do par inicial, cada novo bloco precisa ter o **mesmo valor do anterior** (pode repetir) ou **o dobro dele** — subindo a escada `2 → 4 → 8 → 16...` sem pular etapas.
+- Ao soltar, os blocos da corrente somem e o último vira **2× o maior valor ligado**, ocupando a posição onde a corrente terminou.
+- A pontuação ganha é a **soma de todos os blocos ligados**.
 - Os blocos restantes caem para o fundo (gravidade) e os espaços no topo recebem números novos.
 - Voltar o cursor sobre a célula anterior desfaz o último passo do arraste.
 - Fim de jogo quando **não existir** nenhum par igual adjacente, pois toda corrente válida começa com um par igual.

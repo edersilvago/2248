@@ -54,14 +54,16 @@ function neighbors8(r, c) {
   return out;
 }
 
-// Regra do 2248: a próxima célula precisa ter o mesmo valor da anterior
-// (blocos iguais se fundem) ou exatamente o total acumulado da corrente
-// (progressão 2 -> 4 -> 8 -> ... sem pular etapas).
+// Regra do 2248: a corrente precisa COMEÇAR com dois blocos iguais. Depois,
+// cada novo bloco ligado deve ter o mesmo valor do anterior (repetição) ou o
+// dobro dele (subida na escada de potências, sem pular etapas).
+// O bloco final vale 2x o maior bloco ligado.
 function canExtend(cell) {
   const last = chain[chain.length - 1];
   const lastValue = grid[last.r][last.c];
   const n = grid[cell.r][cell.c];
-  return n === lastValue || n === chainSum;
+  if (chain.length < 2) return n === lastValue;
+  return n === lastValue || n === lastValue * 2;
 }
 
 function adjacent(a, b) {
@@ -119,15 +121,17 @@ function gravityAndFill() {
 
 function doMerge() {
   const last = chain[chain.length - 1];
-  const total = chainSum;
+  const lastValue = grid[last.r][last.c];
+  const resultValue = lastValue * 2; // 2x o maior bloco da corrente
+  const points = chainSum;           // pontuação = soma dos blocos ligados
   const cleared = [];
   chain.forEach((p, i) => {
     if (i < chain.length - 1) cleared.push(p);
   });
   for (const p of cleared) grid[p.r][p.c] = 0;
-  grid[last.r][last.c] = total;
+  grid[last.r][last.c] = resultValue;
   gravityAndFill();
-  score += total;
+  score += points;
   if (score > best) {
     best = score;
     localStorage.setItem('best2248', String(best));
@@ -214,7 +218,8 @@ function render() {
   }
 
   if (chain.length > 1) {
-    sumBadgeEl.textContent = '= ' + chainSum;
+    const lastValue = grid[last.r][last.c];
+    sumBadgeEl.textContent = '= ' + (lastValue * 2);
     sumBadgeEl.style.fontSize = (base * 0.34).toFixed(1) + 'px';
     sumBadgeEl.classList.remove('hidden');
   } else {
