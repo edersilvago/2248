@@ -10,6 +10,7 @@ const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
 const overlayEl = document.getElementById('overlay');
 const finalScoreEl = document.getElementById('finalScore');
+const sumBadgeEl = document.getElementById('sumBadge');
 
 const COLORS = {
   2: ['#eee4da', '#776e65'], 4: ['#ede0c8', '#776e65'],
@@ -27,6 +28,7 @@ let cellEls = [];
 let score = 0;
 let best = Number(localStorage.getItem('best2248') || 0);
 let chain = [];
+let chainSum = 0;
 let dragging = false;
 let over = false;
 let justMerged = false;
@@ -36,7 +38,7 @@ bestEl.textContent = best;
 
 function randInit() {
   const r = Math.random();
-  return r < 0.4 ? 2 : r < 0.7 ? 4 : r < 0.9 ? 8 : 16;
+  return r < 0.45 ? 2 : r < 0.8 ? 4 : 8;
 }
 
 function neighbors8(r, c) {
@@ -51,11 +53,14 @@ function neighbors8(r, c) {
   return out;
 }
 
-// Regra: próxima célula válida é igual à anterior ou o dobro dela
-function canExtend(prev, cell) {
-  const v = grid[prev.r][prev.c];
+// Regra do 2248: a próxima célula precisa ter o mesmo valor da anterior
+// (blocos iguais se fundem) ou exatamente o total acumulado da corrente
+// (progressão 2 -> 4 -> 8 -> ... sem pular etapas).
+function canExtend(cell) {
+  const last = chain[chain.length - 1];
+  const lastValue = grid[last.r][last.c];
   const n = grid[cell.r][cell.c];
-  return n === v || n === v * 2;
+  return n === lastValue || n === chainSum;
 }
 
 function adjacent(a, b) {
@@ -66,13 +71,14 @@ function inChain(cell) {
   return chain.some(p => p.r === cell.r && p.c === cell.c);
 }
 
+// Só existe jogada se houver dois blocos iguais adjacentes: toda corrente
+// válida começa com um par igual.
 function hasMove() {
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
       const v = grid[r][c];
       for (const [nr, nc] of neighbors8(r, c)) {
-        const n = grid[nr][nc];
-        if (n === v || n === v * 2 || v === n * 2) return true;
+        if (grid[nr][nc] === v) return true;
       }
     }
   }
@@ -82,46 +88,44 @@ function hasMove() {
 function randSpawnValue() {
   let maxVal = 2;
   for (const row of grid) for (const v of row) if (v > maxVal) maxVal = v;
-  let cap = Math.max(2, Math.floor(maxVal / 2));
-  const maxExp = Math.max(1, Math.floor(Math.log2(cap)));
-  let exp = 1 + Math.floor(Math.random() * Math.random() * maxExp);
-  let v = 2 ** exp;
+  const cap = Math.max(2, Math.floor(maxVal / 2));
+  const r = Math.random();
+  let v = r < 0.5 ? 2 : r < 0.8 ? 4 : r < 0.95 ? 8 : 16;
   while (v > cap && v > 2) v /= 2;
   return v;
 }
 
-function spawn(count) {
-  const empties = [];
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (grid[r][c] === 0) empties.push([r, c]);
-    }
-  }
-  // embaralhar
-  for (let i = empties.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [empties[i], empties[j]] = [empties[j], empties[i]];
-  }
+// Gravidade: blocos caem para o fundo de cada coluna e os espaços que sobram
+// no topo recebem números novos.
+function gravityAndFill() {
   spawned = [];
-  for (let i = 0; i < Math.min(count, empties.length); i++) {
-    const [r, c] = empties[i];
-    grid[r][c] = randSpawnValue();
-    spawned.push(r * SIZE + c);
+  for (let c = 0; c < SIZE; c++) {
+    const col = [];
+    for (let r = SIZE - 1; r >= 0; r--) {
+      if (grid[r][c] !== 0) col.push(grid[r][c]);
+    }
+    let idx = 0;
+    for (let r = SIZE - 1; r >= 0; r--) {
+      if (idx < col.length) {
+        grid[r][c] = col[idx++];
+      } else {
+        grid[r][c] = randSpawnValue();
+        spawned.push(r * SIZE + c);
+      }
+    }
   }
 }
 
 function doMerge() {
   const last = chain[chain.length - 1];
-  let total = 0;
+  const total = chainSum;
   const cleared = [];
   chain.forEach((p, i) => {
-    total += grid[p.r][p.c];
-    if (i < chain.length - 1) {
-      cleared.push(p);
-    }
+    if (i < chain.length - 1) cleared.push(p);
   });
   for (const p of cleared) grid[p.r][p.c] = 0;
   grid[last.r][last.c] = total;
+  gravityAndFill();
   score += total;
   if (score > best) {
     best = score;
@@ -129,7 +133,6 @@ function doMerge() {
     bestEl.textContent = best;
   }
   scoreEl.textContent = score;
-  spawn(cleared.length);
   justMerged = true;
   if (!hasMove()) {
     over = true;
@@ -198,6 +201,15 @@ function render() {
   } else {
     polyEl.setAttribute('points', '');
   }
+
+  if (chain.length > 1) {
+    sumBadgeEl.textContent = '= ' + chainSum;
+    sumBadgeEl.style.fontSize = (base * 0.34).toFixed(1) + 'px';
+    sumBadgeEl.classList.remove('hidden');
+  } else {
+    sumBadgeEl.classList.add('hidden');
+  }
+
   justMerged = false;
   spawned = [];
 }
@@ -206,6 +218,7 @@ function newGame() {
   score = 0;
   over = false;
   chain = [];
+  chainSum = 0;
   dragging = false;
   scoreEl.textContent = '0';
   overlayEl.classList.add('hidden');
@@ -222,6 +235,7 @@ boardEl.addEventListener('pointerdown', e => {
   if (!cell) return;
   dragging = true;
   chain = [cell];
+  chainSum = grid[cell.r][cell.c];
   render();
   boardEl.setPointerCapture(e.pointerId);
 });
@@ -235,12 +249,14 @@ boardEl.addEventListener('pointermove', e => {
   // voltar sobre a célula anterior desfaz o último passo
   const prev = chain[chain.length - 2];
   if (prev && prev.r === cell.r && prev.c === cell.c) {
+    chainSum -= grid[last.r][last.c];
     chain.pop();
     render();
     return;
   }
-  if (!inChain(cell) && adjacent(last, cell) && canExtend(last, cell)) {
+  if (!inChain(cell) && adjacent(last, cell) && canExtend(cell)) {
     chain.push(cell);
+    chainSum += grid[cell.r][cell.c];
     render();
   }
 });
@@ -250,6 +266,7 @@ function endDrag() {
   dragging = false;
   if (chain.length >= 2 && !over) doMerge();
   chain = [];
+  chainSum = 0;
   render();
 }
 

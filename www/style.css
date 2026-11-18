@@ -147,6 +147,22 @@ h1 {
   stroke-linejoin: round;
 }
 
+#sumBadge {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-weight: bold;
+  padding: 4px 16px;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+#sumBadge.hidden { display: none; }
+
 #overlay {
   position: absolute;
   inset: 0;

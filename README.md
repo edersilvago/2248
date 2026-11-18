@@ -5,11 +5,12 @@ Clone do puzzle **2248 – Number Puzzle Game** feito em **Electron**: arraste e
 ## Como jogar
 
 - Tabuleiro 7×7 sempre cheio de números.
-- Arraste com o mouse (ou toque) conectando números **iguais** ou o **dobro do anterior**, em 8 direções (incluindo diagonais).
-- Ao soltar, toda a cadeia some e vira um único número (a soma) na última célula.
+- Arraste conectando blocos adjacentes em 8 direções (horizontais, verticais e diagonais).
+- A próxima célula precisa ter o **mesmo valor da anterior** ou **exatamente o total acumulado da corrente** (`2` + `2` = `4`, então pode pegar um `4`; depois `8`, `16`... sem pular etapas).
+- Ao soltar, todos os blocos da corrente somem e o último recebe a soma total, ocupando a posição onde a corrente terminou.
+- Os blocos restantes caem para o fundo (gravidade) e os espaços no topo recebem números novos.
 - Voltar o cursor sobre a célula anterior desfaz o último passo do arraste.
-- Novos números preenchem as células liberadas a cada jogada.
-- O jogo acaba quando não existir mais nenhum movimento válido.
+- Fim de jogo quando **não existir** nenhum par igual adjacente, pois toda corrente válida começa com um par igual.
 
 ## Como rodar
 
