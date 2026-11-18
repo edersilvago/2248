@@ -33,6 +33,7 @@ let dragging = false;
 let over = false;
 let justMerged = false;
 let spawned = [];
+let padPx = 8;
 
 bestEl.textContent = best;
 
@@ -146,9 +147,8 @@ function cellFromPoint(x, y) {
   const px = x - rect.left;
   const py = y - rect.top;
   if (px < 0 || py < 0 || px >= rect.width || py >= rect.height) return null;
-  const pad = 8;
-  const inner = rect.width - pad * 2;
-  const ix = px - pad, iy = py - pad;
+  const inner = rect.width - padPx * 2;
+  const ix = px - padPx, iy = py - padPx;
   if (ix < 0 || iy < 0 || ix >= inner || iy >= inner) return null;
   const c = Math.floor((ix / inner) * SIZE);
   const r = Math.floor((iy / inner) * SIZE);
@@ -169,8 +169,19 @@ function buildCells() {
   cellsEl.appendChild(frag);
 }
 
+// Ajusta o tabuleiro ao maior quadrado que cabe na área disponível
+function fitBoard() {
+  const wrap = document.getElementById('boardWrap');
+  const size = Math.max(120, Math.min(wrap.clientWidth, wrap.clientHeight));
+  boardEl.style.width = size + 'px';
+  boardEl.style.height = size + 'px';
+  padPx = Math.max(4, Math.round(size * 0.016));
+  boardEl.style.setProperty('--pad', padPx + 'px');
+}
+
 function render() {
-  const inner = boardEl.clientWidth - 16;
+  fitBoard();
+  const inner = boardEl.clientWidth - padPx * 2;
   const base = inner / SIZE;
   const chainSet = new Set(chain.map(p => p.r * SIZE + p.c));
   const last = chain[chain.length - 1];

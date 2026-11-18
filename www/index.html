@@ -17,17 +17,19 @@
       <button id="restart" title="Reiniciar">⟳</button>
     </div>
 
-    <div id="board">
-      <div id="cells"></div>
-      <svg id="path" viewBox="0 0 700 700" preserveAspectRatio="none">
-        <polyline id="poly" points="" fill="none" />
-      </svg>
-      <div id="overlay" class="hidden">
-        <h2>Sem movimentos!</h2>
-        <p id="finalScore"></p>
-        <button id="playAgain">Jogar de novo</button>
+    <div id="boardWrap">
+      <div id="board">
+        <div id="cells"></div>
+        <svg id="path" viewBox="0 0 700 700" preserveAspectRatio="none">
+          <polyline id="poly" points="" fill="none" />
+        </svg>
+        <div id="overlay" class="hidden">
+          <h2>Sem movimentos!</h2>
+          <p id="finalScore"></p>
+          <button id="playAgain">Jogar de novo</button>
+        </div>
+        <div id="sumBadge" class="hidden"></div>
       </div>
-      <div id="sumBadge" class="hidden"></div>
     </div>
 
     <p class="hint">Conecte números iguais ou o total atual da corrente.</p>
